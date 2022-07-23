@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:vibration_catcher/streamControl.dart';
 
 import 'acce2.dart';
 
-void main() => runApp(MyApp2());
+void main() => runApp(MyApp3());
 
 class MyApp extends StatelessWidget {
   @override
