@@ -6,7 +6,7 @@ class SimpleLineChart extends StatelessWidget {
   final List<charts.Series<dynamic,num>>? seriesList;
   final bool? animate;
 
-  SimpleLineChart(this.seriesList, {this.animate});
+  const SimpleLineChart(this.seriesList, {Key? key, this.animate}) : super(key: key);
 
   /// Creates a [LineChart] with sample data and no transition.
   factory SimpleLineChart.withSampleData() {

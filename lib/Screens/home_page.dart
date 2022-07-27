@@ -1,9 +1,13 @@
+// ignore_for_file: unused_import, avoid_print
+
 import 'dart:async';
 import 'dart:math';
-
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:graphic/graphic.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+import 'package:vibration_catcher/Screens/chart_ex.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,19 +22,15 @@ class _HomePageState extends State<HomePage> {
   bool recording = false;
   StreamSubscription? streamSub;
   UserAccelerometerEvent? event;
-  List<dynamic> liste = [0];
+  List<double> liste = [0];
   String recordStat = "Start Recording";
-  var data = [
-    {'category': 'Shirts', 'sales': 5},
-    {'category': 'Cardigans', 'sales': 20},
-    {'category': 'Chiffons', 'sales': 36},
-    {'category': 'Pants', 'sales': 10},
-    {'category': 'Heels', 'sales': 10},
-    {'category': 'Socks', 'sales': 20},
-  ];
+  var listLen = [];
 
   @override
   Widget build(BuildContext context) {
+    for (int i = 0; i < liste.length; i++) {
+      listLen.add([liste[i],i]);
+    }
     return Scaffold(
       backgroundColor: Colors.indigo.shade800,
       appBar: AppBar(
@@ -68,13 +68,13 @@ class _HomePageState extends State<HomePage> {
                   margin: const EdgeInsets.only(top: 12, left: 3, right: 3),
                   padding: const EdgeInsets.only(bottom: 12.0, top: 8),
                   decoration: BoxDecoration(
-                    border:
-                        Border.all(color: Colors.indigoAccent.shade200, width: 3),
+                    border: Border.all(
+                        color: Colors.indigoAccent.shade200, width: 3),
                     borderRadius: BorderRadius.circular(5),
                   ),
-                
+
                   //Axis Values
-                
+
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -86,8 +86,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child:
-                                Text(event?.x.toStringAsFixed(3) ?? "Değer Yok"),
+                            child: Text(
+                                event?.x.toStringAsFixed(3) ?? "Değer Yok"),
                           ),
                         ],
                       ),
@@ -99,8 +99,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child:
-                                Text(event?.y.toStringAsFixed(3) ?? "Değer Yok"),
+                            child: Text(
+                                event?.y.toStringAsFixed(3) ?? "Değer Yok"),
                           ),
                         ],
                       ),
@@ -112,34 +112,40 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child:
-                                Text(event?.z.toStringAsFixed(3) ?? "Değer Yok"),
+                            child: Text(
+                                event?.z.toStringAsFixed(3) ?? "Değer Yok"),
                           ),
+                          // Renders line chart
                         ],
                       ),
                     ],
                   ),
                 ),
-                
-               /* Chart(
-                  data: data,
-                  variables: {
-                    'category': Variable(
-                      accessor: (Map map) => map['category'] as String,
-                    ),
-                    'sales': Variable(
-                      accessor: (Map map) => map['sales'] as num,
-                    ),
-                  },
-                  elements: [IntervalElement()],
-                  axes: [
-                    Defaults.horizontalAxis,
-                    Defaults.verticalAxis,
+                /* SfCartesianChart(
+                  primaryXAxis: CategoryAxis(),
+                  // Chart title
+                  title: ChartTitle(text: 'Half yearly sales analysis'),
+                  // Enable legend
+                  legend: Legend(isVisible: true),
+                  // Enable tooltip
+                  tooltipBehavior: TooltipBehavior(enable: true),
+                  series: <ChartSeries>[
+                    LineSeries(
+                        
+                        dataSource: listLen,
+                        xValueMapper: (listLen, _) => listLen[1],
+                        yValueMapper: (listLen, _) => listLen[0],
+                        name: 'Sales',
+                        // Enable data label
+                        dataLabelSettings: const DataLabelSettings(isVisible: true))
                   ],
-                ),
-              */
+                ),*/
+                Divider(),
+
+                LineChartSample4(),
+
                 //Record Button
-                
+
                 ElevatedButton(
                   style: colorFul(Colors.red, Colors.green),
                   onPressed: () {
@@ -149,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                           start();
                         } else {
                           stop();
-                          print(peaks(liste));
+                          liste = peaks(liste);
                         }
                       },
                     );
@@ -208,8 +214,8 @@ class _HomePageState extends State<HomePage> {
     recording = !recording;
   }
 
-  peaks(List a) {
-    List b = [a.first];
+  peaks(List<double> a) {
+    List<double> b = [a.first];
     for (int i = 1; i < a.length - 1; i++) {
       if (a[i - 1] < a[i] && a[i] > a[i + 1]) {
         b.add(a[i]);

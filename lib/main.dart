@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:vibration_catcher/Screens/chart_ex.dart';
 import 'Screens/home_page.dart';
 
 void main() {
