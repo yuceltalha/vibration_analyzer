@@ -1,66 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class LineChartSample4 extends StatelessWidget {
-  const LineChartSample4({Key? key}) : super(key: key);
+// ignore: must_be_immutable
+class LineChartSample4 extends StatefulWidget {
+  List<double> mDataY;
+  List<double> mDataX;
+  List<double> mDataZ;
 
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    String text;
-    switch (value.toInt()) {
-      case 0:
-        text = 'Jan';
-        break;
-      case 1:
-        text = 'Feb';
-        break;
-      case 2:
-        text = 'Mar';
-        break;
-      case 3:
-        text = 'Apr';
-        break;
-      case 4:
-        text = 'May';
-        break;
-      case 5:
-        text = 'Jun';
-        break;
-      case 6:
-        text = 'Jul';
-        break;
-      case 7:
-        text = 'Aug';
-        break;
-      case 8:
-        text = 'Sep';
-        break;
-      case 9:
-        text = 'Oct';
-        break;
-      case 10:
-        text = 'Nov';
-        break;
-      case 11:
-        text = 'Dec';
-        break;
-      default:
-        return Container();
-    }
+  LineChartSample4({Key? key,required this.mDataX,required this.mDataZ,required this.mDataY}) : super(key: key);
 
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 4,
-      child: Text(text, style: _dateTextStyle),
-    );
-  }
-
-  Widget leftTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(color: Colors.black, fontSize: 12.0);
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      child: Text('\$ ${value + 0.5}', style: style),
-    );
-  }
 
   static const _dateTextStyle = TextStyle(
     fontSize: 10,
@@ -69,9 +17,39 @@ class LineChartSample4 extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
-    const cutOffYValue = 5.0;
+  State<LineChartSample4> createState() => _LineChartSample4State();
+}
 
+class _LineChartSample4State extends State<LineChartSample4> {
+  double maxV = 0;
+
+  double minV = 0;
+
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    if(value>maxV){maxV = value;}
+    if(value<minV){minV = value;}
+    const style = TextStyle(color: Colors.black, fontSize: 12.0);
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: Text('${value.round()}', style: style),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double cutOffYValue = widget.mDataY.length<100 ? 0 : widget.mDataY[50];
+  List<FlSpot> spotsY =  
+      widget.mDataY.asMap().entries.map((e) {
+         return FlSpot(e.key.toDouble(), e.value);
+      }).toList();
+      List<FlSpot> spotsZ =  
+      widget.mDataZ.asMap().entries.map((e) {
+         return FlSpot(e.key.toDouble(), e.value);
+      }).toList();
+      List<FlSpot> spotsX =  
+      widget.mDataX.asMap().entries.map((e) {
+         return FlSpot(e.key.toDouble(), e.value);
+      }).toList();
     return AspectRatio(
       aspectRatio: 2.4,
       child: Padding(
@@ -81,31 +59,19 @@ class LineChartSample4 extends StatelessWidget {
             lineTouchData: LineTouchData(enabled: false),
             lineBarsData: [
               LineChartBarData(
-                spots: const [
-                  FlSpot(0, 4),
-                  FlSpot(1, 3.5),
-                  FlSpot(2, 4.5),
-                  FlSpot(3, 1),
-                  FlSpot(4, 4),
-                  FlSpot(5, 6),
-                  FlSpot(6, 6.5),
-                  FlSpot(7, 6),
-                  FlSpot(8, 4),
-                  FlSpot(9, 6),
-                  FlSpot(10, 6),
-                  FlSpot(11, 7),
-                ],
+                spots: spotsY,
                 isCurved: true,
-                barWidth: 8,
-                color: Colors.purpleAccent,
+                barWidth: 1,
+                color: Colors.green,
+
                 belowBarData: BarAreaData(
-                  show: true,
+                  show: false,
                   color: Colors.deepPurple.withOpacity(0.4),
                   cutOffY: cutOffYValue,
                   applyCutOffY: true,
                 ),
                 aboveBarData: BarAreaData(
-                  show: true,
+                  show: false,
                   color: Colors.orange.withOpacity(0.6),
                   cutOffY: cutOffYValue,
                   applyCutOffY: true,
@@ -114,8 +80,55 @@ class LineChartSample4 extends StatelessWidget {
                   show: false,
                 ),
               ),
+              
+               
+               LineChartBarData(
+                spots: spotsZ,
+                isCurved: true,
+                barWidth: 1,
+                color: Colors.black,
+
+                belowBarData: BarAreaData(
+                  show: false,
+                  color: Colors.deepPurple.withOpacity(0.4),
+                  cutOffY: cutOffYValue,
+                  applyCutOffY: true,
+                ),
+                aboveBarData: BarAreaData(
+                  show: false,
+                  color: Colors.orange.withOpacity(0.6),
+                  cutOffY: cutOffYValue,
+                  applyCutOffY: true,
+                ),
+                dotData: FlDotData(
+                  show: false,
+                ),
+              ), 
+              LineChartBarData(
+                spots: spotsX,
+                isCurved: true,
+                barWidth: 1,
+                color: Colors.indigo,
+
+                belowBarData: BarAreaData(
+                  show: false,
+                  color: Colors.deepPurple.withOpacity(0.4),
+                  cutOffY: cutOffYValue,
+                  applyCutOffY: true,
+                ),
+                aboveBarData: BarAreaData(
+                  show: false,
+                  color: Colors.orange.withOpacity(0.6),
+                  cutOffY: cutOffYValue,
+                  applyCutOffY: true,
+                ),
+                dotData: FlDotData(
+                  show: false,
+                ),
+              ), 
+                
+            
             ],
-            minY: 0,
             titlesData: FlTitlesData(
               show: true,
               topTitles: AxisTitles(
@@ -127,13 +140,13 @@ class LineChartSample4 extends StatelessWidget {
               bottomTitles: AxisTitles(
                 axisNameWidget: const Text(
                   '2019',
-                  style: _dateTextStyle,
+                  style: LineChartSample4._dateTextStyle,
                 ),
                 sideTitles: SideTitles(
-                  showTitles: true,
+                  showTitles: false,
                   reservedSize: 18,
                   interval: 1,
-                  getTitlesWidget: bottomTitleWidgets,
+                  //getTitlesWidget: bottomTitleWidgets,
                 ),
               ),
               leftTitles: AxisTitles(
@@ -144,8 +157,9 @@ class LineChartSample4 extends StatelessWidget {
                 ),
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: 1,
-                  reservedSize: 40,
+                  interval: 3,
+                  reservedSize: 3,
+
                   getTitlesWidget: leftTitleWidgets,
                 ),
               ),
@@ -155,7 +169,7 @@ class LineChartSample4 extends StatelessWidget {
               drawVerticalLine: false,
               horizontalInterval: 1,
               checkToShowHorizontalLine: (double value) {
-                return value == 1 || value == 6 || value == 4 || value == 5;
+                return true;
               },
             ),
           ),

@@ -22,15 +22,14 @@ class _HomePageState extends State<HomePage> {
   bool recording = false;
   StreamSubscription? streamSub;
   UserAccelerometerEvent? event;
-  List<double> liste = [0];
+  List<double> listeY = [0];
+  List<double> listeX = [0];
+  List<double> listeZ = [0];
   String recordStat = "Start Recording";
   var listLen = [];
 
   @override
   Widget build(BuildContext context) {
-    for (int i = 0; i < liste.length; i++) {
-      listLen.add([liste[i],i]);
-    }
     return Scaffold(
       backgroundColor: Colors.indigo.shade800,
       appBar: AppBar(
@@ -121,28 +120,11 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                /* SfCartesianChart(
-                  primaryXAxis: CategoryAxis(),
-                  // Chart title
-                  title: ChartTitle(text: 'Half yearly sales analysis'),
-                  // Enable legend
-                  legend: Legend(isVisible: true),
-                  // Enable tooltip
-                  tooltipBehavior: TooltipBehavior(enable: true),
-                  series: <ChartSeries>[
-                    LineSeries(
-                        
-                        dataSource: listLen,
-                        xValueMapper: (listLen, _) => listLen[1],
-                        yValueMapper: (listLen, _) => listLen[0],
-                        name: 'Sales',
-                        // Enable data label
-                        dataLabelSettings: const DataLabelSettings(isVisible: true))
-                  ],
-                ),*/
-                Divider(),
 
-                LineChartSample4(),
+                const Divider(),
+
+                LineChartSample4(
+                    mDataY: listeY, mDataX: listeX, mDataZ: listeZ),
 
                 //Record Button
 
@@ -155,7 +137,10 @@ class _HomePageState extends State<HomePage> {
                           start();
                         } else {
                           stop();
-                          liste = peaks(liste);
+                          listeY = peaks(listeY);
+                          listeX = peaks(listeX);
+                          print(peaks(listeX));
+                          listeZ = peaks(listeZ);
                         }
                       },
                     );
@@ -181,8 +166,39 @@ class _HomePageState extends State<HomePage> {
     streamSub = userAccelerometerEvents.listen((UserAccelerometerEvent eve) {
       setState(() {
         event = eve;
-        var val = roundDouble(event!.y);
-        liste.add(val);
+        var valY = roundDouble(event!.y);
+        var valX = roundDouble(event!.x);
+        var valZ = roundDouble(event!.z);
+
+        listeY.add(valY);
+        listeX.add(valX);
+        listeX.add(valZ);
+        for (int i = 0; i < listeY.length; i++) {
+          if (listeY.length < 100) {
+            break;
+          } else {
+            listeY.removeAt(0);
+          }
+        }
+
+        
+        for (int i = 0; i < listeX.length; i++) {
+          if (listeX.length < 100) {
+            break;
+          } else {
+            listeX.removeAt(0);
+          }
+        }
+
+        
+
+        for (int i = 0; i < listeZ.length; i++) {
+          if (listeZ.length < 100) {
+            break;
+          } else {
+            listeZ.removeAt(0);
+          }
+        }
       });
     });
     recording = !recording;
@@ -217,10 +233,12 @@ class _HomePageState extends State<HomePage> {
   peaks(List<double> a) {
     List<double> b = [a.first];
     for (int i = 1; i < a.length - 1; i++) {
-      if (a[i - 1] < a[i] && a[i] > a[i + 1]) {
-        b.add(a[i]);
-      } else if (a[i - 1] > a[i] && a[i] < a[i + 1]) {
-        b.add(a[i]);
+      if ((a[i + 1] - a[i]).abs() > 0.1) {
+        if (a[i - 1] < a[i] && a[i] > a[i + 1]) {
+          b.add(a[i]);
+        } else if (a[i - 1] > a[i] && a[i] < a[i + 1]) {
+          b.add(a[i]);
+        }
       }
     }
     b.add(a.last);
