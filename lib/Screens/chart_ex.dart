@@ -7,8 +7,12 @@ class LineChartSample4 extends StatefulWidget {
   List<double> mDataX;
   List<double> mDataZ;
 
-  LineChartSample4({Key? key,required this.mDataX,required this.mDataZ,required this.mDataY}) : super(key: key);
-
+  LineChartSample4(
+      {Key? key,
+      required this.mDataX,
+      required this.mDataZ,
+      required this.mDataY})
+      : super(key: key);
 
   static const _dateTextStyle = TextStyle(
     fontSize: 10,
@@ -26,10 +30,16 @@ class _LineChartSample4State extends State<LineChartSample4> {
   double minV = 0;
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    if(value>maxV){maxV = value;}
-    if(value<minV){minV = value;}
+    if (value > maxV) {
+      maxV = value;
+    }
+    if (value < minV) {
+      minV = value;
+    }
     const style = TextStyle(color: Colors.black, fontSize: 12.0);
     return SideTitleWidget(
+      space: 0,
+      angle: 0,
       axisSide: meta.axisSide,
       child: Text('${value.round()}', style: style),
     );
@@ -37,21 +47,18 @@ class _LineChartSample4State extends State<LineChartSample4> {
 
   @override
   Widget build(BuildContext context) {
-    double cutOffYValue = widget.mDataY.length<100 ? 0 : widget.mDataY[50];
-  List<FlSpot> spotsY =  
-      widget.mDataY.asMap().entries.map((e) {
-         return FlSpot(e.key.toDouble(), e.value);
-      }).toList();
-      List<FlSpot> spotsZ =  
-      widget.mDataZ.asMap().entries.map((e) {
-         return FlSpot(e.key.toDouble(), e.value);
-      }).toList();
-      List<FlSpot> spotsX =  
-      widget.mDataX.asMap().entries.map((e) {
-         return FlSpot(e.key.toDouble(), e.value);
-      }).toList();
+    double cutOffYValue = widget.mDataY.length < 100 ? 0 : widget.mDataY[50];
+    List<FlSpot> spotsY = widget.mDataY.asMap().entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value);
+    }).toList();
+    List<FlSpot> spotsZ = widget.mDataZ.asMap().entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value);
+    }).toList();
+    List<FlSpot> spotsX = widget.mDataX.asMap().entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value);
+    }).toList();
     return AspectRatio(
-      aspectRatio: 2.4,
+      aspectRatio: 1,
       child: Padding(
         padding: const EdgeInsets.only(left: 12, right: 24),
         child: LineChart(
@@ -63,7 +70,6 @@ class _LineChartSample4State extends State<LineChartSample4> {
                 isCurved: true,
                 barWidth: 1,
                 color: Colors.green,
-
                 belowBarData: BarAreaData(
                   show: false,
                   color: Colors.deepPurple.withOpacity(0.4),
@@ -80,14 +86,11 @@ class _LineChartSample4State extends State<LineChartSample4> {
                   show: false,
                 ),
               ),
-              
-               
-               LineChartBarData(
+              LineChartBarData(
                 spots: spotsZ,
                 isCurved: true,
                 barWidth: 1,
                 color: Colors.black,
-
                 belowBarData: BarAreaData(
                   show: false,
                   color: Colors.deepPurple.withOpacity(0.4),
@@ -103,13 +106,12 @@ class _LineChartSample4State extends State<LineChartSample4> {
                 dotData: FlDotData(
                   show: false,
                 ),
-              ), 
+              ),
               LineChartBarData(
                 spots: spotsX,
                 isCurved: true,
                 barWidth: 1,
                 color: Colors.indigo,
-
                 belowBarData: BarAreaData(
                   show: false,
                   color: Colors.deepPurple.withOpacity(0.4),
@@ -125,9 +127,7 @@ class _LineChartSample4State extends State<LineChartSample4> {
                 dotData: FlDotData(
                   show: false,
                 ),
-              ), 
-                
-            
+              ),
             ],
             titlesData: FlTitlesData(
               show: true,
@@ -138,16 +138,7 @@ class _LineChartSample4State extends State<LineChartSample4> {
                 sideTitles: SideTitles(showTitles: false),
               ),
               bottomTitles: AxisTitles(
-                axisNameWidget: const Text(
-                  '2019',
-                  style: LineChartSample4._dateTextStyle,
-                ),
-                sideTitles: SideTitles(
-                  showTitles: false,
-                  reservedSize: 18,
-                  interval: 1,
-                  //getTitlesWidget: bottomTitleWidgets,
-                ),
+                sideTitles: SideTitles(showTitles: false),
               ),
               leftTitles: AxisTitles(
                 axisNameSize: 20,
@@ -159,7 +150,6 @@ class _LineChartSample4State extends State<LineChartSample4> {
                   showTitles: true,
                   interval: 3,
                   reservedSize: 3,
-
                   getTitlesWidget: leftTitleWidgets,
                 ),
               ),
@@ -167,6 +157,7 @@ class _LineChartSample4State extends State<LineChartSample4> {
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
+              
               horizontalInterval: 1,
               checkToShowHorizontalLine: (double value) {
                 return true;

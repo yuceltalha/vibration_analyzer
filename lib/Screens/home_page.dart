@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
                 topRight: Radius.circular(30),
-              )),
+              ),),
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: SingleChildScrollView(
@@ -139,7 +139,6 @@ class _HomePageState extends State<HomePage> {
                           stop();
                           listeY = peaks(listeY);
                           listeX = peaks(listeX);
-                          print(peaks(listeX));
                           listeZ = peaks(listeZ);
                         }
                       },
@@ -161,55 +160,64 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  start() {
-    debugPrint("recording");
-    streamSub = userAccelerometerEvents.listen((UserAccelerometerEvent eve) {
-      setState(() {
-        event = eve;
-        var valY = roundDouble(event!.y);
-        var valX = roundDouble(event!.x);
-        var valZ = roundDouble(event!.z);
+  double shefSpecialToX(double x) {
+    x = x - x % 1;
 
-        listeY.add(valY);
-        listeX.add(valX);
-        listeX.add(valZ);
-        for (int i = 0; i < listeY.length; i++) {
-          if (listeY.length < 100) {
-            break;
-          } else {
-            listeY.removeAt(0);
-          }
-        }
-
-        
-        for (int i = 0; i < listeX.length; i++) {
-          if (listeX.length < 100) {
-            break;
-          } else {
-            listeX.removeAt(0);
-          }
-        }
-
-        
-
-        for (int i = 0; i < listeZ.length; i++) {
-          if (listeZ.length < 100) {
-            break;
-          } else {
-            listeZ.removeAt(0);
-          }
-        }
-      });
-    });
-    recording = !recording;
-
-    setState(() {
-      recordStat = "Stop Recording";
-    });
+    return x;
   }
 
-  double roundDouble(double value) {
-    value = value - value % 0.001;
+  start() {
+    debugPrint("recording");
+    streamSub = userAccelerometerEvents.listen(
+      (UserAccelerometerEvent eve) {
+        setState(
+          () {
+            event = eve;
+            var valY = roundDouble(event!.y, 2);
+            var valX = roundDouble(event!.x, 2);
+            var valZ = roundDouble(event!.z, 2);
+            listeY.add(valY);
+            listeX.add(valX);
+            listeZ.add(valZ);
+
+            for (int i = 0; i < listeY.length; i++) {
+              if (listeY.length < 150) {
+                break;
+              } else {
+                listeY.removeAt(0);
+              }
+            }
+
+            for (int i = 0; i < listeX.length; i++) {
+              if (listeX.length < 150) {
+                break;
+              } else {
+                listeX.removeAt(0);
+              }
+            }
+
+            for (int i = 0; i < listeZ.length; i++) {
+              if (listeZ.length < 150) {
+                break;
+              } else {
+                listeZ.removeAt(0);
+              }
+            }
+          },
+        );
+      },
+    );
+    recording = !recording;
+
+    setState(
+      () {
+        recordStat = "Stop Recording";
+      },
+    );
+  }
+
+  double roundDouble(double value, int power) {
+    value = value - value % 1 / pow(10, power);
     return value;
   }
 
@@ -221,13 +229,21 @@ class _HomePageState extends State<HomePage> {
   stop() {
     debugPrint("Record Stopped");
 
-    setState(() {
-      recordStat = "Start Recording";
-    });
+    setState(
+      () {
+        recordStat = "Start Recording";
+      },
+    );
     streamSub?.cancel();
     streamSub = null;
     event = null;
     recording = !recording;
+    print(listeX);
+    print(listeY);
+    print(listeZ);
+    listeX = [0];
+    listeY = [0];
+    listeZ = [0];
   }
 
   peaks(List<double> a) {
