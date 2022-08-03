@@ -158,13 +158,14 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Text(recordStat),
                 ),
-                ElevatedButton(onPressed: (){
+                ElevatedButton(
+                  onPressed: () {
                     setState(() {
                       SheetStorage().clearSheet();
                     });
-                }, 
-                child: Text("Clear Table"),)
-
+                  },
+                  child: const Text("Clear Table"),
+                )
               ],
             ),
           ),
@@ -275,12 +276,12 @@ class _HomePageState extends State<HomePage> {
     listeX = [0];
     listeY = [0];
     listeZ = [0];
-    fallinAPart(sheetX, 1);
-    fallinAPart(sheetY, 2);
-    fallinAPart(sheetZ, 3);
+    addRec(1,fallinAPart(sheetX));
+    addRec(2,fallinAPart(sheetY));
+    addRec(3,fallinAPart(sheetZ));
   }
 
-  fallinAPart(List a, int line) {
+  fallinAPart(List a) {
     List<List<double>> x = [];
     for (int i = 0; i < a.length; i++) {
       if (i % 100 != 0) {
@@ -292,16 +293,20 @@ class _HomePageState extends State<HomePage> {
         x.add([]);
       }
     }
+    return x;
+  }
+
+  addRec(int line, List x) {
     for (int i = 0; i < x.length; i++) {
       switch (line) {
         case 1:
-          SheetStorage().sheetFunc(x[i],i,1);
+          SheetStorage().sheetFunc(x[i], i, 1);
           break;
         case 2:
-          SheetStorage().sheetFuncY(x[i],i,2);
+          SheetStorage().sheetFuncY(x[i], i, 2);
           break;
         case 3:
-          SheetStorage().sheetFuncZ(x[i], i,3);
+          SheetStorage().sheetFuncZ(x[i], i, 3);
           break;
         default:
       }
