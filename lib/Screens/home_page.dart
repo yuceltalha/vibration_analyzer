@@ -1,8 +1,6 @@
 // ignore_for_file: unused_import, avoid_print, import_of_legacy_library_into_null_safe, depend_on_referenced_packages
-
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:vibration_catcher/Screens/chart_ex.dart';
@@ -37,7 +35,6 @@ class _HomePageState extends State<HomePage> {
   List<double> sheetY = [0];
   List<double> sheetZ = [0];
   String recordStat = "Start Recording";
-  var listLen = [];
   Color buttonColor = Colors.green;
 
   @override
@@ -180,14 +177,6 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  double shefSpecialToX(double x) {
-    x = x - x % 1;
-
-    return x;
-  }
-
-  var count = 1;
-
   start() {
     debugPrint("recordingkkkkkk");
     streamSub = userAccelerometerEvents.listen(
@@ -232,20 +221,16 @@ class _HomePageState extends State<HomePage> {
             listeY.add(valY);
             listeZ.add(valZ);
 
-            for (int i = 0; i < listeX.length; i++) {
-              if (listeX.length > 100) {
-                listeX.removeAt(0);
-              }
+            if (listeX.length > 100) {
+              listeX.removeAt(0);
             }
-            for (int i = 0; i < listeY.length; i++) {
-              if (listeY.length > 100) {
-                listeY.removeAt(0);
-              }
+
+            if (listeY.length > 100) {
+              listeY.removeAt(0);
             }
-            for (int i = 0; i < listeZ.length; i++) {
-              if (listeZ.length > 100) {
-                listeZ.removeAt(0);
-              }
+
+            if (listeZ.length > 100) {
+              listeZ.removeAt(0);
             }
           },
         );
@@ -276,27 +261,23 @@ class _HomePageState extends State<HomePage> {
     listeX = [0];
     listeY = [0];
     listeZ = [0];
-    addRec(1,fallinAPart(sheetX));
-    addRec(2,fallinAPart(sheetY));
-    addRec(3,fallinAPart(sheetZ));
+    fallinAPart(sheetX,1);
+    fallinAPart(sheetY,2);
+    fallinAPart(sheetZ,3);
+    
   }
 
-  fallinAPart(List a) {
+  fallinAPart(List<double> a,int line) {
     List<List<double>> x = [];
-    for (int i = 0; i < a.length; i++) {
-      if (i % 100 != 0) {
-        x[(i / 100).toInt()].add(a[i]);
-      } else if (i == 0) {
-        x.add([]);
-        x[0].add(a[i]);
-      } else {
-        x.add([]);
-      }
-    }
-    return x;
-  }
 
-  addRec(int line, List x) {
+    for (int i = 0; i < a.length / 100; i++) {
+      x.add([]);
+    }
+
+    for (int i = 1; i < a.length - 1; i++) {
+      x[i ~/ 100].add(a[i]);
+    }
+    
     for (int i = 0; i < x.length; i++) {
       switch (line) {
         case 1:
@@ -316,8 +297,7 @@ class _HomePageState extends State<HomePage> {
   double roundDouble(num value, int power) {
     value = value * 1000;
     value = value.toInt();
-    value = value / 1000;
-    return value.toDouble();
+    return (value.toDouble() / 1000);
   }
 
   double roundDouble2(double value, int places) {
@@ -327,14 +307,12 @@ class _HomePageState extends State<HomePage> {
 
   peaks(List<double> a) {
     List<double> b = [a.first];
+
     for (int i = 1; i < a.length - 1; i++) {
-      // (a[i] > a[i + 1] && a[i] - a[i + 1] > 1) || (a[i] < a[i + 1] && a[i + 1] - a[i] > 1)
-      if (true) {
-        if (a[i - 1] < a[i] && a[i] > a[i + 1]) {
-          b.add(a[i]);
-        } else if (a[i - 1] > a[i] && a[i] < a[i + 1]) {
-          b.add(a[i]);
-        }
+      if (a[i - 1] < a[i] && a[i] > a[i + 1]) {
+        b.add(a[i]);
+      } else if (a[i - 1] > a[i] && a[i] < a[i + 1]) {
+        b.add(a[i]);
       }
     }
     b.add(a.last);
