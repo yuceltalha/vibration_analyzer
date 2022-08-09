@@ -6,7 +6,9 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:vibration_catcher/Screens/chart_ex.dart';
 import 'dart:io';
 import 'package:path/path.dart';
+import 'package:vibration_catcher/Screens/item_screen.dart';
 import 'package:vibration_catcher/bloc/excel_bloc.dart';
+import "package:curved_navigation_bar/curved_navigation_bar.dart";
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -37,6 +39,9 @@ class _HomePageState extends State<HomePage> {
   String recordStat = "Start Recording";
   Color buttonColor = Colors.green;
 
+  List<Widget> items = const <Widget>[Icon(Icons.home, size: 30,), Icon(Icons.list, size: 30,), Icon(Icons.person, size: 30,)];
+  int? index;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +52,16 @@ class _HomePageState extends State<HomePage> {
         title: const Text("Vibration Analyzer"),
         centerTitle: true,
         backgroundColor: Colors.indigo.shade800,
+      ),
+      bottomNavigationBar: CurvedNavigationBar(
+        animationDuration: Duration(milliseconds: 200),
+        buttonBackgroundColor: Colors.white,
+        backgroundColor: Colors.blueAccent,
+        items: items,
+        index: 0,
+        onTap: (index)  {
+          this.index = index;
+        },
       ),
       body: Center(
         child: Container(
@@ -60,114 +75,113 @@ class _HomePageState extends State<HomePage> {
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Text(
-                    "Axis Values",
-                    style: TextStyle(
-                      fontStyle: FontStyle.normal,
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 12, left: 3, right: 3),
-                  padding: const EdgeInsets.only(bottom: 12.0, top: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Colors.indigoAccent.shade200, width: 3),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-
-                  //Axis Values
-
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            "X",
-                            style: textWColor(Colors.green),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                                event?.x.toStringAsFixed(3) ?? "Değer Yok"),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            "Y",
-                            style: textWColor(Colors.black),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                                event?.y.toStringAsFixed(3) ?? "Değer Yok"),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            "Z",
-                            style: textWColor(Colors.indigo),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                                event?.z.toStringAsFixed(3) ?? "Değer Yok"),
-                          ),
-                          // Renders line chart
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Divider(),
-
-                LineChartSample4(
-                    mDataY: listeY, mDataX: listeX, mDataZ: listeZ),
-
-                //Record Button
-
-                ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(buttonColor),
-                  ),
-                  onPressed: () {
-                    setState(
-                      () {
-                        if (!recording) {
-                          start();
-                        } else {
-                          stop();
-                        }
-                      },
-                    );
-                  },
-                  child: Text(recordStat),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      SheetStorage().clearSheet();
-                    });
-                  },
-                  child: const Text("Clear Table"),
-                )
-              ],
-            ),
+            child: Records(),
           ),
         ),
       ),
+    );
+  }
+
+  Column _mainColumn() {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Text(
+            "Axis Values",
+            style: TextStyle(
+              fontStyle: FontStyle.normal,
+              fontSize: 22.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 12, left: 3, right: 3),
+          padding: const EdgeInsets.only(bottom: 12.0, top: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.indigoAccent.shade200, width: 3),
+            borderRadius: BorderRadius.circular(5),
+          ),
+
+          //Axis Values
+
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    "X",
+                    style: textWColor(Colors.green),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(event?.x.toStringAsFixed(3) ?? "Değer Yok"),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    "Y",
+                    style: textWColor(Colors.black),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(event?.y.toStringAsFixed(3) ?? "Değer Yok"),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    "Z",
+                    style: textWColor(Colors.indigo),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(event?.z.toStringAsFixed(3) ?? "Değer Yok"),
+                  ),
+                  // Renders line chart
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        const Divider(),
+
+        LineChartSample4(mDataY: listeY, mDataX: listeX, mDataZ: listeZ),
+
+        //Record Button
+
+        ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(buttonColor),
+          ),
+          onPressed: () {
+            setState(
+              () {
+                if (!recording) {
+                  start();
+                } else {
+                  stop();
+                }
+              },
+            );
+          },
+          child: Text(recordStat),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              SheetStorage().clearSheet();
+            });
+          },
+          child: const Text("Clear Table"),
+        )
+      ],
     );
   }
 
@@ -186,14 +200,6 @@ class _HomePageState extends State<HomePage> {
             buttonColor = Colors.red;
             event = eve;
 
-            /* Timer.periodic(const Duration(seconds: 1), (timer) {
-              count.add(eve.x);
-              print(count.length);
-              timer.cancel();
-            });
-            print(count.toString() + " asdgkskadlgasdl");
-              count = []; */
-
             var valX = roundDouble(event!.x, 3);
             var valY = roundDouble(event!.y, 3);
             var valZ = roundDouble(event!.z, 3);
@@ -202,21 +208,6 @@ class _HomePageState extends State<HomePage> {
             sheetY.add(event!.y);
             sheetZ.add(event!.z);
 
-            /* if (sheetX.length > 100) {
-              SheetStorage().sheetFunc(sheetX, [], [],count);
-              sheetX = [];
-              count +=count;
-            }
-            sheetY.add(valY);
-            if (sheetY.length > 100) {
-              SheetStorage().sheetFunc([], sheetY, [],count);
-              sheetY = [];
-            }
-            sheetZ.add(valZ);
-            if (sheetZ.length > 100) {
-              SheetStorage().sheetFunc([], [], sheetZ,count);
-              sheetZ = [];
-            } */
             listeX.add(valX);
             listeY.add(valY);
             listeZ.add(valZ);
@@ -261,13 +252,12 @@ class _HomePageState extends State<HomePage> {
     listeX = [0];
     listeY = [0];
     listeZ = [0];
-    fallinAPart(sheetX,1);
-    fallinAPart(sheetY,2);
-    fallinAPart(sheetZ,3);
-    
+    fallinAPart(sheetX, 1);
+    fallinAPart(sheetY, 2);
+    fallinAPart(sheetZ, 3);
   }
 
-  fallinAPart(List<double> a,int line) {
+  fallinAPart(List<double> a, int line) {
     List<List<double>> x = [];
 
     for (int i = 0; i < a.length / 100; i++) {
@@ -277,7 +267,7 @@ class _HomePageState extends State<HomePage> {
     for (int i = 1; i < a.length - 1; i++) {
       x[i ~/ 100].add(a[i]);
     }
-    
+
     for (int i = 0; i < x.length; i++) {
       switch (line) {
         case 1:

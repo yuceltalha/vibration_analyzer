@@ -1,7 +1,11 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, unused_import, import_of_legacy_library_into_null_safe
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gsheets/gsheets.dart';
+import 'package:http/http.dart' as http;
+import 'package:vibration_catcher/models/metric_model.dart';
 
 const _credentials = r''' 
 {
@@ -20,29 +24,48 @@ const _credentials = r'''
 const _spreadSheetId = "1wnbeM5-tRB63NApPgHhXVVdXfQKTC7Y0K9EtrqxEQis";
 
 class SheetStorage {
-  
-  sheetFunc(List x,int row,int col) async {
+  List<List<double>> items = [];
+
+  sheetFunc(List x, int row, int col) async {
     final gSheets = GSheets(_credentials);
     final ss = await gSheets.spreadsheet(_spreadSheetId);
     var sheet = ss.worksheetByTitle("xyz-metrics1");
-    sheet.values.insertColumn(col, x,fromRow: row*100+1);
-}
-sheetFuncY(List y,int row,int col) async {
+    sheet.values.insertColumn(col, x, fromRow: row * 100 + 1);
+  }
+
+  sheetFuncY(List y, int row, int col) async {
     final gSheets = GSheets(_credentials);
     final ss = await gSheets.spreadsheet(_spreadSheetId);
     var sheet = ss.worksheetByTitle("xyz-metrics1");
-    sheet.values.insertColumn(col, y,fromRow: row*100+1);
-}
-sheetFuncZ(List z,int row,int col) async {
+    sheet.values.insertColumn(col, y, fromRow: row * 100 + 1);
+  }
+
+  sheetFuncZ(List z, int row, int col) async {
     final gSheets = GSheets(_credentials);
     final ss = await gSheets.spreadsheet(_spreadSheetId);
     var sheet = ss.worksheetByTitle("xyz-metrics1");
-    sheet.values.insertColumn(col, z,fromRow: row*100+1);
-}
-clearSheet()async{
-  final gSheets = GSheets(_credentials);
+    sheet.values.insertColumn(col, z, fromRow: row * 100 + 1);
+  }
+
+  clearSheet() async {
+    final gSheets = GSheets(_credentials);
     final ss = await gSheets.spreadsheet(_spreadSheetId);
     var sheet = ss.worksheetByTitle("xyz-metrics1");
     sheet.clear();
-}
+  }
+  final apiKey= "AKfycbyCuVRXdh_NsurrxMFLijUmShD-I3Cpb0uuxCEVkKBq69O_Lm_WOwogIg9DqlkktnOzwg";
+
+  Future<MetricModel> getDataFromGoogleSheet() async {
+    final response = await http.get(
+      Uri.parse(
+          "https://script.google.com/macros/s/$apiKey/exec"),
+    );  print(response.body);
+      print(response.statusCode);
+    if (response.statusCode == 200) {
+    
+      return MetricModel.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception("Failed to load data");
+    }
+  }
 }
