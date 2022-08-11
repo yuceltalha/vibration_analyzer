@@ -53,19 +53,45 @@ class SheetStorage {
     var sheet = ss.worksheetByTitle("xyz-metrics1");
     sheet.clear();
   }
-  final apiKey= "AKfycbyCuVRXdh_NsurrxMFLijUmShD-I3Cpb0uuxCEVkKBq69O_Lm_WOwogIg9DqlkktnOzwg";
 
-  Future<MetricModel> getDataFromGoogleSheet() async {
-    final response = await http.get(
-      Uri.parse(
-          "https://script.google.com/macros/s/$apiKey/exec"),
-    );  print(response.body);
-      print(response.statusCode);
+  getSheet() async {
+    final gSheets = GSheets(_credentials);
+    final ss = await gSheets.spreadsheet(_spreadSheetId);
+    var sheet = ss.worksheetByTitle("xyz-metrics1");
+  }
+
+  final String data = r"""
+    {
+        "x": -0.002799999,
+        "y": -0.008799999,
+        "z": -0.051999997
+    }
+""";
+
+  Future<List<DataModel>> fetchAlbum() async {
+    List<DataModel> dataL = [];
+
+    final response = await http.get(Uri.parse(
+        'https://script.google.com/macros/s/AKfycbw8JLePjmLY4PNFyKuMEKxcGaz9kSh6YdRZydYdDxD1P7mUuoM2hP1h4sFiWYhhi9K1dg/exec'));
+
     if (response.statusCode == 200) {
-    
-      return MetricModel.fromJson(jsonDecode(response.body));
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      List<dynamic> values;
+      values = json.decode(response.body);
+      if (values.isNotEmpty) {
+        for (int i = 0; i < values.length; i++) {
+          if (values[i] != null) {
+            Map<String, dynamic> map = values[i];
+            dataL.add(DataModel.fromJson(map));
+          }
+          
+        }return dataL;
+      }else{throw Exception("failll");}
     } else {
-      throw Exception("Failed to load data");
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
     }
   }
 }

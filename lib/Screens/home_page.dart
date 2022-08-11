@@ -1,11 +1,9 @@
-// ignore_for_file: unused_import, avoid_print, import_of_legacy_library_into_null_safe, depend_on_referenced_packages
+// ignore_for_file: avoid_print, import_of_legacy_library_into_null_safe, depend_on_referenced_packages
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:vibration_catcher/Screens/chart_ex.dart';
-import 'dart:io';
-import 'package:path/path.dart';
 import 'package:vibration_catcher/Screens/item_screen.dart';
 import 'package:vibration_catcher/bloc/excel_bloc.dart';
 import "package:curved_navigation_bar/curved_navigation_bar.dart";
@@ -54,7 +52,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.indigo.shade800,
       ),
       bottomNavigationBar: CurvedNavigationBar(
-        animationDuration: Duration(milliseconds: 200),
+        animationDuration: const Duration(milliseconds: 200),
         buttonBackgroundColor: Colors.white,
         backgroundColor: Colors.blueAccent,
         items: items,
@@ -74,7 +72,7 @@ class _HomePageState extends State<HomePage> {
           ),
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: SingleChildScrollView(
+          child:  SingleChildScrollView(
             child: Records(),
           ),
         ),
