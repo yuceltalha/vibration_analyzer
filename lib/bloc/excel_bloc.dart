@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart' as http;
 import 'package:vibration_catcher/models/metric_model.dart';
+import 'dart:convert' as convert;
 
 const _credentials = r''' 
 {
@@ -25,27 +26,31 @@ const _spreadSheetId = "1wnbeM5-tRB63NApPgHhXVVdXfQKTC7Y0K9EtrqxEQis";
 
 class SheetStorage {
   List<List<double>> items = [];
-
-  sheetFunc(List x, int row, int col) async {
+  createSheet(String time) async {
     final gSheets = GSheets(_credentials);
     final ss = await gSheets.spreadsheet(_spreadSheetId);
-    var sheet = ss.worksheetByTitle("xyz-metrics1");
+    var sheet = await ss.addWorksheet("$time");
+  }
+
+  sheetFunc(int col, List x, int row, String time) async {
+    final gSheets = GSheets(_credentials);
+    final ss = await gSheets.spreadsheet(_spreadSheetId);
+    var sheet = (ss.worksheetByTitle(time) ?? ss.worksheetByTitle("xyz-metrics1"));
     sheet.values.insertColumn(col, x, fromRow: row * 100 + 1);
   }
 
-  sheetFuncY(List y, int row, int col) async {
+  getSheetList()async{
+    List sList = [];
     final gSheets = GSheets(_credentials);
     final ss = await gSheets.spreadsheet(_spreadSheetId);
-    var sheet = ss.worksheetByTitle("xyz-metrics1");
-    sheet.values.insertColumn(col, y, fromRow: row * 100 + 1);
+      for (var i = 0; i < 300; i++) {
+        if(ss.worksheetById(i) != null){
+          sList.add(i);
+        }
+      }
+    return sList;
   }
 
-  sheetFuncZ(List z, int row, int col) async {
-    final gSheets = GSheets(_credentials);
-    final ss = await gSheets.spreadsheet(_spreadSheetId);
-    var sheet = ss.worksheetByTitle("xyz-metrics1");
-    sheet.values.insertColumn(col, z, fromRow: row * 100 + 1);
-  }
 
   clearSheet() async {
     final gSheets = GSheets(_credentials);
@@ -54,44 +59,12 @@ class SheetStorage {
     sheet.clear();
   }
 
-  getSheet() async {
-    final gSheets = GSheets(_credentials);
-    final ss = await gSheets.spreadsheet(_spreadSheetId);
-    var sheet = ss.worksheetByTitle("xyz-metrics1");
-  }
-
-  final String data = r"""
-    {
-        "x": -0.002799999,
-        "y": -0.008799999,
-        "z": -0.051999997
-    }
-""";
-
-  Future<List<DataModel>> fetchAlbum() async {
-    List<DataModel> dataL = [];
-
-    final response = await http.get(Uri.parse(
-        'https://script.google.com/macros/s/AKfycbw8JLePjmLY4PNFyKuMEKxcGaz9kSh6YdRZydYdDxD1P7mUuoM2hP1h4sFiWYhhi9K1dg/exec'));
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      List<dynamic> values;
-      values = json.decode(response.body);
-      if (values.isNotEmpty) {
-        for (int i = 0; i < values.length; i++) {
-          if (values[i] != null) {
-            Map<String, dynamic> map = values[i];
-            dataL.add(DataModel.fromJson(map));
-          }
-          
-        }return dataL;
-      }else{throw Exception("failll");}
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load album');
-    }
+  String URL =
+      "https://script.google.com/macros/s/AKfycbw8JLePjmLY4PNFyKuMEKxcGaz9kSh6YdRZydYdDxD1P7mUuoM2hP1h4sFiWYhhi9K1dg/exec";
+  Future<List<FeedbackForm>> getFeedbackList() async {
+    return await http.get(URL).then((response) {
+      var jsonFeedback = convert.jsonDecode(response.body) as List;
+      return jsonFeedback.map((json) => FeedbackForm.fromJson(json)).toList();
+    });
   }
 }

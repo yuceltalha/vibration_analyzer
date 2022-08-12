@@ -8,8 +8,10 @@ import 'package:vibration_catcher/Screens/item_screen.dart';
 import 'package:vibration_catcher/bloc/excel_bloc.dart';
 import "package:curved_navigation_bar/curved_navigation_bar.dart";
 
+import '../models/metric_model.dart';
+
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -25,6 +27,15 @@ class _HomePageState extends State<HomePage> {
     return axisStyle;
   }
 
+  late Future<List<FeedbackForm>> model;
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      model = SheetStorage().getFeedbackList();
+    });
+  }
+
   bool recording = false;
   StreamSubscription? streamSub;
   UserAccelerometerEvent? event;
@@ -37,7 +48,20 @@ class _HomePageState extends State<HomePage> {
   String recordStat = "Start Recording";
   Color buttonColor = Colors.green;
 
-  List<Widget> items = const <Widget>[Icon(Icons.home, size: 30,), Icon(Icons.list, size: 30,), Icon(Icons.person, size: 30,)];
+  List<Widget> items = const <Widget>[
+    Icon(
+      Icons.home,
+      size: 30,
+    ),
+    Icon(
+      Icons.list,
+      size: 30,
+    ),
+    Icon(
+      Icons.person,
+      size: 30,
+    )
+  ];
   int? index;
 
   @override
@@ -53,11 +77,12 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: CurvedNavigationBar(
         animationDuration: const Duration(milliseconds: 200),
-        buttonBackgroundColor: Colors.white,
-        backgroundColor: Colors.blueAccent,
+        buttonBackgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.white,
+        color: Colors.indigoAccent,
         items: items,
         index: 0,
-        onTap: (index)  {
+        onTap: (index) {
           this.index = index;
         },
       ),
@@ -72,15 +97,36 @@ class _HomePageState extends State<HomePage> {
           ),
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child:  SingleChildScrollView(
-            child: Records(),
+          child: SingleChildScrollView(
+            child:Page2(),
           ),
         ),
       ),
     );
   }
 
-  Column _mainColumn() {
+  Page2() {
+    return Center(
+      child: FutureBuilder<List<FeedbackForm>>(
+        future: model,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            print("geldi");
+            //print(snapshot.data![0].x.toString());
+            return Text(snapshot.data![2].x.toString());
+          } else if (snapshot.hasError) {
+            print("gelmedi");
+            return Text('${snapshot.error}');
+          }
+
+          // By default, show a loading spinner.
+          return const CircularProgressIndicator();
+        },
+      ),
+    );
+  }
+
+  _mainColumn() {
     return Column(
       children: [
         const Padding(
@@ -250,60 +296,58 @@ class _HomePageState extends State<HomePage> {
     listeX = [0];
     listeY = [0];
     listeZ = [0];
-    fallinAPart(sheetX, 1);
-    fallinAPart(sheetY, 2);
-    fallinAPart(sheetZ, 3);
+    DateTime now = DateTime.now();
+    DateTime time = DateTime(now.year,now.month,now.day,now.hour,now.minute,now.second);
+    print(time.toString());
+    SheetStorage().createSheet(time.toString());
+
+
+    uploadSheet([sheetX,sheetY,sheetZ],time.toString());
   }
 
-  fallinAPart(List<double> a, int line) {
-    List<List<double>> x = [];
+  uploadSheet(List<List<double>> sheetList,String sheet) {
+    
+    List<List<List<double>>> x = [[], [], []];
 
-    for (int i = 0; i < a.length / 100; i++) {
-      x.add([]);
+    for (int j = 0; j < 3; j++) {
+      for (int i = 0; i < sheetList[j].length / 100; i++) {
+        x[j].add([]);
+      }
+
+      for (int i = 1; i < sheetList[j].length - 1; i++) {
+        x[j][i ~/ 100].add(sheetList[j][i]);
+      }
     }
-
-    for (int i = 1; i < a.length - 1; i++) {
-      x[i ~/ 100].add(a[i]);
-    }
-
+    
     for (int i = 0; i < x.length; i++) {
-      switch (line) {
-        case 1:
-          SheetStorage().sheetFunc(x[i], i, 1);
-          break;
-        case 2:
-          SheetStorage().sheetFuncY(x[i], i, 2);
-          break;
-        case 3:
-          SheetStorage().sheetFuncZ(x[i], i, 3);
-          break;
-        default:
+      for (int j = 0; j < x[i].length; j++) {
+        SheetStorage().sheetFunc(i+1,x[i][j],j,sheet);
       }
     }
   }
+}
 
-  double roundDouble(num value, int power) {
-    value = value * 1000;
-    value = value.toInt();
-    return (value.toDouble() / 1000);
-  }
+double roundDouble(num value, int power) {
+  value = value * 1000;
+  value = value.toInt();
+  return (value.toDouble() / 1000);
+}
 
-  double roundDouble2(double value, int places) {
-    num mod = pow(10.0, places);
-    return ((value * mod).round().toDouble() / mod);
-  }
+double roundDouble2(double value, int places) {
+  num mod = pow(10.0, places);
+  return ((value * mod).round().toDouble() / mod);
+}
 
-  peaks(List<double> a) {
-    List<double> b = [a.first];
+peaks(List<double> a) {
+  List<double> b = [a.first];
 
-    for (int i = 1; i < a.length - 1; i++) {
-      if (a[i - 1] < a[i] && a[i] > a[i + 1]) {
-        b.add(a[i]);
-      } else if (a[i - 1] > a[i] && a[i] < a[i + 1]) {
-        b.add(a[i]);
-      }
+  for (int i = 1; i < a.length - 1; i++) {
+    if (a[i - 1] < a[i] && a[i] > a[i + 1]) {
+      b.add(a[i]);
+    } else if (a[i - 1] > a[i] && a[i] < a[i + 1]) {
+      b.add(a[i]);
     }
-    b.add(a.last);
-    return b;
   }
+  b.add(a.last);
+  return b;
 }

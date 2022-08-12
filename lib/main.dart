@@ -17,7 +17,7 @@ class MainPage extends StatelessWidget {
         // brightness: Brightness.dark,
         primaryColor: Colors.indigo,
       ),
-      home: const HomePage(),
+      home:  HomePage(),
     );
   }
 }

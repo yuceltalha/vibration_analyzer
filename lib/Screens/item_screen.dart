@@ -10,31 +10,37 @@ class Records extends StatefulWidget {
 }
 
 class _RecordsState extends State<Records> {
-late Future<List<DataModel>> model;
+late Future<List<FeedbackForm>> model;
 @override
   void initState() {
     super.initState();
-      model = SheetStorage().fetchAlbum();
+      setState(() {
+        model = SheetStorage().getFeedbackList();
+      });
       } 
 
 
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<DataModel>>(
+    //SheetStorage().getSheet;
+    return Container(
+      child: FutureBuilder<List<FeedbackForm>>(
   future: model,
   builder: (context, snapshot) {
-    if (snapshot.hasData) {
-    print("geldi");
-    return Text(snapshot.data!.toString());
-    } else if (snapshot.hasError) {
-    print("gelmedi");
-    return Text('${snapshot.error}');
-    }
+      if (snapshot.hasData) {
+      print("geldi");
+      //print(snapshot.data![0].x.toString());
+      return Text(snapshot.data![0].x.toString() + "z");
+      } else if (snapshot.hasError) {
+      print("gelmedi");
+      return Text('${snapshot.error}');
+      }
 
-    // By default, show a loading spinner.
-    return const CircularProgressIndicator();
+      // By default, show a loading spinner.
+      return const CircularProgressIndicator();
   },
-);
+),
+    );
   }
 }
