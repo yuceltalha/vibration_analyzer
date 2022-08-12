@@ -39,6 +39,16 @@ class SheetStorage {
     sheet.values.insertColumn(col, x, fromRow: row * 100 + 1);
   }
 
+  getSheetById(int count) async {
+    List<List<double>> data = [];
+    final gSheets = GSheets(_credentials);
+    final ss = await gSheets.spreadsheet(_spreadSheetId);
+    for (var i = 0; i < count; i++) {
+      var sheet = ss.worksheetById(i);
+      
+    }
+  }
+
   getSheetList()async{
     List sList = [];
     final gSheets = GSheets(_credentials);

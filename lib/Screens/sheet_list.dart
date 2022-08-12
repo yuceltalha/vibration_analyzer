@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vibration_catcher/bloc/excel_bloc.dart';
 
 class SheetListPage extends StatefulWidget {
   SheetListPage({Key? key}) : super(key: key);
@@ -9,14 +10,16 @@ class SheetListPage extends StatefulWidget {
 
 class _SheetListPageState extends State<SheetListPage> {
 
+List idList = SheetStorage().getSheetList();
 
 
-  
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
       child: ListView.builder(
-          itemCount: 5,
+          itemCount: idList.length,
           itemBuilder: (BuildContext context, int index) {
             return ListTile(
                 leading: const Icon(Icons.list),
