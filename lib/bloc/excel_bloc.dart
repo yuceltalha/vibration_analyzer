@@ -7,6 +7,10 @@ import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart' as http;
 import 'package:vibration_catcher/models/metric_model.dart';
 import 'dart:convert' as convert;
+import 'dart:math';
+
+import '../models/date.dart';
+import '../models/date_model.dart';
 
 const _credentials = r''' 
 {
@@ -25,45 +29,46 @@ const _credentials = r'''
 const _spreadSheetId = "1wnbeM5-tRB63NApPgHhXVVdXfQKTC7Y0K9EtrqxEQis";
 
 class SheetStorage {
-  List<List<double>> items = [];
-  createSheet(String time) async {
-    final gSheets = GSheets(_credentials);
+  final gSheets = GSheets(_credentials);
+  sheetFunc(List<List<List<double>>> x, String date) async {
     final ss = await gSheets.spreadsheet(_spreadSheetId);
-    var sheet = await ss.addWorksheet("$time");
-  }
-
-  sheetFunc(int col, List x, int row, String time) async {
-    final gSheets = GSheets(_credentials);
-    final ss = await gSheets.spreadsheet(_spreadSheetId);
-    var sheet = (ss.worksheetByTitle(time) ?? ss.worksheetByTitle("xyz-metrics1"));
-    sheet.values.insertColumn(col, x, fromRow: row * 100 + 1);
-  }
-
-  getSheetById(int count) async {
-    List<List<double>> data = [];
-    final gSheets = GSheets(_credentials);
-    final ss = await gSheets.spreadsheet(_spreadSheetId);
-    for (var i = 0; i < count; i++) {
-      var sheet = ss.worksheetById(i);
-      
+    var sheet = ss.worksheetByTitle("xyz-metrics1");
+    sheet.clear();
+    for (var i = 0; i < 3; i++) {
+      for (var j = 0; j < x[i].length; j++) {
+        await sheet.values.insertColumn(i + 1, x[i][j], fromRow: j * 100 + 1);
+      }
+    }
+    var rowC =await sheet.values.allColumns();
+    var largest = 0;
+    for (var i = 0; i < rowC.length; i++) {
+      if (rowC[i].length > largest) {
+        largest = rowC[i].length;
+      }
     }
   }
 
-  getSheetList()async{
-    List sList = [];
-    final gSheets = GSheets(_credentials);
+  Future<List<String>> addDates(int lastLen, String time) async {
     final ss = await gSheets.spreadsheet(_spreadSheetId);
-      for (var i = 0; i < 300; i++) {
-        if(ss.worksheetById(i) != null){
-          sList.add(i);
-        }
-      }
-    return sList;
+    var sheet = ss.worksheetByTitle("xyz-metrics1");
+    /// skips the first value which is the header
+    final values = (await sheet.values.column(1,length: 200)).toList();
+    sheet.values.insertValue(time, column: 1, row: values.length+1);
+    return values;
   }
 
+  addTime(String time) async {
+    final ss = await gSheets.spreadsheet(_spreadSheetId);
+    var sheet = ss.worksheetByTitle("xyz-metrics1");    
+    sheet.values.insertValue(time, column: 1, row: 1);
+  }
+   addTime2(String time) async {
+    final ss = await gSheets.spreadsheet(_spreadSheetId);
+    var sheet = ss.worksheetByTitle("xyz-metrics1");    
+    sheet.values.appendRow([time]);
+  }
 
   clearSheet() async {
-    final gSheets = GSheets(_credentials);
     final ss = await gSheets.spreadsheet(_spreadSheetId);
     var sheet = ss.worksheetByTitle("xyz-metrics1");
     sheet.clear();
